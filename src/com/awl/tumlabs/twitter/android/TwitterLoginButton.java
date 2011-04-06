@@ -17,23 +17,18 @@
 
 package com.awl.tumlabs.twitter.android;
 
-import com.awl.tumlabs.twitter.android.TwitterAuth.AuthListener;
-import com.awl.tumlabs.twitter.android.TwitterAuth.DialogListener;
-import com.twitter.android.R;
-
-import oauth.signpost.OAuth;
-import oauth.signpost.exception.OAuthCommunicationException;
-import oauth.signpost.exception.OAuthExpectationFailedException;
-import oauth.signpost.exception.OAuthMessageSignerException;
-import oauth.signpost.exception.OAuthNotAuthorizedException;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
-import android.os.Bundle;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+
+import com.awl.tumlabs.twitter.android.TwitterAuth.AuthListener;
+import com.awl.tumlabs.twitter.android.TwitterAuth.TwitterLoginListener;
+import com.twitter.android.R;
 
 /***
  * Create a login button to sign in with Twitter
@@ -48,6 +43,9 @@ public class TwitterLoginButton extends ImageButton {
 	private TwitterAuth twitter;
 	private Activity activity;
 	private AuthListener listener;
+	private SessionListener sessionListener;
+
+	private Handler hander = new Handler();
 
 	public TwitterLoginButton(Context context) {
 		super(context);
@@ -74,6 +72,7 @@ public class TwitterLoginButton extends ImageButton {
 		this.twitter = twitter;
 		this.activity = activiy;
 		this.listener = listener;
+		this.sessionListener = new SessionListener();
 
 		setBackgroundColor(Color.TRANSPARENT);
 		setAdjustViewBounds(true);
@@ -87,63 +86,63 @@ public class TwitterLoginButton extends ImageButton {
 		setOnClickListener(new ButtonOnClickListener());
 	}
 
-	private final class ButtonOnClickListener implements OnClickListener {
+	final class ButtonOnClickListener implements OnClickListener {
 
 		@Override
 		public void onClick(View v) {
+
 			if (twitter.isSessionValid()) {
 				Log.d(TAG, "Session valid: disconnection");
 				TwitterSessionStore.clear(twitter, getContext());
 				setImageResource(R.drawable.twitter_login);
 				listener.onLogoutSucceed();
 			} else {
-				try {
-					Log.d(TAG, "Session not valid: connection");
-					String authorizeUrl = twitter.getAuthorizeUrl();
-					twitter.autorize(activity, authorizeUrl,
-							new LoginDialogListener());
-				} catch (OAuthMessageSignerException e) {
-					Log.e(TAG, e.getMessage());
-					listener.onError(e.getMessage());
-				} catch (OAuthNotAuthorizedException e) {
-					Log.e(TAG, e.getMessage());
-					listener.onError(e.getMessage());
-				} catch (OAuthExpectationFailedException e) {
-					Log.e(TAG, e.getMessage());
-					listener.onError(e.getMessage());
-				} catch (OAuthCommunicationException e) {
-					Log.e(TAG, e.getMessage());
-					listener.onError(e.getMessage());
-				}
+				Log.d(TAG, "Session not valid: connection");
+				twitter.getAuthorizeUrl(sessionListener);
 			}
 		}
 	}
 
-	private final class LoginDialogListener implements DialogListener {
+	protected final class SessionListener implements TwitterLoginListener {
 
 		@Override
-		public void onComplete(Bundle values) {
-			try {
-				// Get the OAuth Verifier and retrieve the token
-				String oauthVerifier = values.getString(OAuth.OAUTH_VERIFIER);
-				twitter.retrieveAccessToken(oauthVerifier);
-				TwitterSessionStore.save(twitter, getContext());
+		public void onAuthorizeUrlRetrieved(String url) {
+			Log.d(TAG, "onAuthorizeUrlRetrieved: " + url);
+			final String _url = url;
+			hander.post(new Runnable() {
 
-				setImageResource(R.drawable.twitter_logout);
-				listener.onAuthSucceed();
-			} catch (OAuthMessageSignerException e) {
-				Log.e(TAG, e.getMessage());
-				listener.onError(e.getMessage());
-			} catch (OAuthNotAuthorizedException e) {
-				Log.e(TAG, e.getMessage());
-				listener.onError(e.getMessage());
-			} catch (OAuthExpectationFailedException e) {
-				Log.e(TAG, e.getMessage());
-				listener.onError(e.getMessage());
-			} catch (OAuthCommunicationException e) {
-				Log.e(TAG, e.getMessage());
-				listener.onError(e.getMessage());
-			}
+				@Override
+				public void run() {
+					twitter.autorize(activity, _url,
+							sessionListener);
+				}
+			});
 		}
+
+		@Override
+		public void onDialogComplete(String oauthVerifier) {
+			Log.d(TAG, "onDialogComplete: " + oauthVerifier);
+			twitter.retrieveAccessToken(oauthVerifier, sessionListener);
+		}
+		
+		@Override
+		public void onAccessTokenRetrieved() {
+			Log.d(TAG, "onAccessTokenRetrieved");
+			hander.post(new Runnable() {
+				
+				@Override
+				public void run() {
+					TwitterSessionStore.save(twitter, getContext());
+					setImageResource(R.drawable.twitter_logout);
+					listener.onAuthSucceed();
+				}
+			});
+		}
+
+		@Override
+		public void onError(String message) {
+			listener.onError(message);
+		}
+
 	}
 }

@@ -21,6 +21,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 
+import android.app.AlertDialog.Builder;
+import android.content.Context;
 import android.os.Bundle;
 
 public class Util {
@@ -49,4 +51,11 @@ public class Util {
 		}
 		return params;
 	}
+	
+	protected static void showAlert(Context context, String title, String text) {
+        Builder alertBuilder = new Builder(context);
+        alertBuilder.setTitle(title);
+        alertBuilder.setMessage(text);
+        alertBuilder.create().show();
+    }
 }

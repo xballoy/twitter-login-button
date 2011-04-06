@@ -1,0 +1,9 @@
+Changelog
+
+Version 1.1.0
++ Add stacktrace to the Log messages
++ Check if the application has Internet permission
+* Fix Honeycomb compatibility
+
+Version 1.0.0
+Initial version

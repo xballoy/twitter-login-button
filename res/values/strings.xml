@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="loading">Loading</string>
+    <string name="error">Error</string>
+    <string name="internet_permission_required">Application requires permission to access the Internet</string>
+</resources>

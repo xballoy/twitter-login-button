@@ -17,6 +17,7 @@
 
 package com.awl.tumlabs.twitter.android;
 
+import oauth.signpost.OAuth;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -32,7 +33,8 @@ import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-import com.awl.tumlabs.twitter.android.TwitterAuth.DialogListener;
+import com.awl.tumlabs.twitter.android.TwitterLoginButton.SessionListener;
+import com.twitter.android.R;
 
 /***
  * Create a webview to launch the Twitter website to permit the user to allow
@@ -52,7 +54,7 @@ public class TwitterDialog extends Dialog {
 			ViewGroup.LayoutParams.FILL_PARENT);
 
 	private String mUrl;
-	private DialogListener mListener;
+	private SessionListener mListener;
 	private ProgressDialog mSpinner;
 	private WebView mWebView;
 	private LinearLayout mContent;
@@ -72,7 +74,7 @@ public class TwitterDialog extends Dialog {
 	 *            The listener to know when the webview ends
 	 */
 	public TwitterDialog(Context context, String url, String callbackUrl,
-			DialogListener listener) {
+			SessionListener listener) {
 		super(context);
 		this.mUrl = url;
 		this.callbackUrl = callbackUrl;
@@ -85,7 +87,7 @@ public class TwitterDialog extends Dialog {
 
 		mSpinner = new ProgressDialog(getContext());
 		mSpinner.requestWindowFeature(Window.FEATURE_NO_TITLE);
-		mSpinner.setMessage("Loading...");
+		mSpinner.setMessage(getContext().getString(R.string.loading));
 
 		mContent = new LinearLayout(getContext());
 		mContent.setOrientation(LinearLayout.VERTICAL);
@@ -124,7 +126,8 @@ public class TwitterDialog extends Dialog {
 			Log.d(TAG, "shouldOverrideUrlLoading: " + url);
 			if (url.startsWith(callbackUrl)) {
 				Bundle values = Util.parseUrl(url, callbackUrl);
-				mListener.onComplete(values);
+				String oauthVerifier = values.getString(OAuth.OAUTH_VERIFIER);
+				mListener.onDialogComplete(oauthVerifier);
 				TwitterDialog.this.dismiss();
 				return true;
 			}
