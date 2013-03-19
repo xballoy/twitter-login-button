@@ -6,19 +6,19 @@ The Twitter Login Button code includes oauth-signpost libraries that are license
 
 #Example of utilisation
 
-= Introduction =
+##Introduction
 
 In this example I will show you how to use the twitter-login-button (TLB)
 The target build of the TBL is Android 1.5 so it can be used in every Android project.
 
-= Prerequisite =
-== Software ==
+##Prerequisite
+###Software
 
 Before you begin development with TBL you need to install Android SDK and developers tool.
- * [http://developer.android.com/sdk/index.html Android]
- * [http://developer.android.com/sdk/eclipse-adt.html The Eclipse Plugin]
+ * [Android](http://developer.android.com/sdk/index.html)
+ * [The Eclipse Plugin](http://developer.android.com/sdk/eclipse-adt.html)
 
-== Installation ==
+###Installation
 
 Once you have everything installed, open Eclipse and create a new Android Project (File | New | Project ...). We will use this project for the TLB source and then reference it from our app. As such, we need to get the content by selecting Create project from existing source and specifying the TLB directory.
 
@@ -27,33 +27,33 @@ With the TLB project created, we can create the app. Create a new Android Projec
 Once your app project is created, you will need to add a reference to the TLB project. You do this by opening the properties window for our app (File | Properties), selecting the Android item from the list, pressing the Add... button in the Library area and selecting the TLB project created above.
 
 Once the Facebook SDK is referenced, the app manifest needs to be modified to allow the app to make network calls to Facebook. This is accomplished by adding the following to the `AndroidManifest.xml` file in the app project:
-{{{
+```xml
 <uses-permission android:name="android.permission.INTERNET">
 </uses-permission>
-}}}
+```
 
-== Implementation ==
-=== Register your app ===
+###Implementation
+####Register your app
 
-In order to use you must create an app in the [https://dev.twitter.com/ Twitter Dev Center].
-You need to choose *Browser* as *Application Type*.
-You can put anything but a valid URL in the *Callback URL* because it's programmatically redefined. 
+In order to use you must create an app in the [Twitter Dev Center](https://dev.twitter.com/).
+You need to choose **Browser** as **Application Type**.
+You can put anything but a valid URL in the **Callback URL** because it's programmatically redefined. 
 Once your app is registered save your Consumer Key and your Consumer Secret.
 
-=== Layout ===
+####Layout
 
 First, you have to add the TLB into your layout as following:
-{{{
+```xml
 <com.awl.tumlabs.twitter.android.TwitterLoginButton
 android:id="@+id/bLoginTwitter" android:layout_width="wrap_content"
 android:layout_height="wrap_content"/>
-}}}
+```
 
-== Activity ==
+###Activity
 
 In the class associated to your layout you have to initialize the TLB as following.
 
-{{{
+```java
 package com.awl.tumlabs.android;
 
 import android.app.Activity;
@@ -105,6 +105,6 @@ public class TwitterExample extends Activity{
 	}
 	
 }
-}}}
+```
 
 You can handle the login and logout with `TwitterAuthListener`.
