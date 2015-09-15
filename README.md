@@ -1,7 +1,7 @@
 twitter-login-button
 ====================
 
-*DISCLAMER*: This project is discontinued and deprecated. I will not provide any support for it.
+> **This project is discontinued and deprecated. I will not provide any support for it.**
 
 A button to include into the layout of your Android project to easily connect to Twitter by using OAuth.
 
